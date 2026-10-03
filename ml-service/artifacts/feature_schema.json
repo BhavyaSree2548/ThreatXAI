@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "dataset": "CIC-IDS2017 local CSV corpus",
+  "source_directory": "data/raw/MachineLearningCSV/MachineLearningCVE",
+  "label_column": " Label",
+  "feature_count": 78,
+  "feature_order_policy": "Physical source CSV order; no feature was removed or reordered.",
+  "duplicate_header_policy": "The duplicate source header is retained at both physical positions. Only the later model-facing name receives the deterministic suffix __duplicate_2 so dataframe/model inputs are unambiguous.",
+  "features": [
+    {
+      "position": 0,
+      "model_name": " Destination Port",
+      "source_name": " Destination Port",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 1,
+      "model_name": " Flow Duration",
+      "source_name": " Flow Duration",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 2,
+      "model_name": " Total Fwd Packets",
+      "source_name": " Total Fwd Packets",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 3,
+      "model_name": " Total Backward Packets",
+      "source_name": " Total Backward Packets",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 4,
+      "model_name": "Total Length of Fwd Packets",
+      "source_name": "Total Length of Fwd Packets",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 5,
+      "model_name": " Total Length of Bwd Packets",
+      "source_name": " Total Length of Bwd Packets",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 6,
+      "model_name": " Fwd Packet Length Max",
+      "source_name": " Fwd Packet Length Max",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 7,
+      "model_name": " Fwd Packet Length Min",
+      "source_name": " Fwd Packet Length Min",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 8,
+      "model_name": " Fwd Packet Length Mean",
+      "source_name": " Fwd Packet Length Mean",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 9,
+      "model_name": " Fwd Packet Length Std",
+      "source_name": " Fwd Packet Length Std",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 10,
+      "model_name": "Bwd Packet Length Max",
+      "source_name": "Bwd Packet Length Max",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 11,
+      "model_name": " Bwd Packet Length Min",
+      "source_name": " Bwd Packet Length Min",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 12,
+      "model_name": " Bwd Packet Length Mean",
+      "source_name": " Bwd Packet Length Mean",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 13,
+      "model_name": " Bwd Packet Length Std",
+      "source_name": " Bwd Packet Length Std",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 14,
+      "model_name": "Flow Bytes/s",
+      "source_name": "Flow Bytes/s",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 15,
+      "model_name": " Flow Packets/s",
+      "source_name": " Flow Packets/s",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 16,
+      "model_name": " Flow IAT Mean",
+      "source_name": " Flow IAT Mean",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 17,
+      "model_name": " Flow IAT Std",
+      "source_name": " Flow IAT Std",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 18,
+      "model_name": " Flow IAT Max",
+      "source_name": " Flow IAT Max",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 19,
+      "model_name": " Flow IAT Min",
+      "source_name": " Flow IAT Min",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 20,
+      "model_name": "Fwd IAT Total",
+      "source_name": "Fwd IAT Total",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 21,
+      "model_name": " Fwd IAT Mean",
+      "source_name": " Fwd IAT Mean",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 22,
+      "model_name": " Fwd IAT Std",
+      "source_name": " Fwd IAT Std",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 23,
+      "model_name": " Fwd IAT Max",
+      "source_name": " Fwd IAT Max",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 24,
+      "model_name": " Fwd IAT Min",
+      "source_name": " Fwd IAT Min",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 25,
+      "model_name": "Bwd IAT Total",
+      "source_name": "Bwd IAT Total",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 26,
+      "model_name": " Bwd IAT Mean",
+      "source_name": " Bwd IAT Mean",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 27,
+      "model_name": " Bwd IAT Std",
+      "source_name": " Bwd IAT Std",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 28,
+      "model_name": " Bwd IAT Max",
+      "source_name": " Bwd IAT Max",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 29,
+      "model_name": " Bwd IAT Min",
+      "source_name": " Bwd IAT Min",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 30,
+      "model_name": "Fwd PSH Flags",
+      "source_name": "Fwd PSH Flags",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 31,
+      "model_name": " Bwd PSH Flags",
+      "source_name": " Bwd PSH Flags",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 32,
+      "model_name": " Fwd URG Flags",
+      "source_name": " Fwd URG Flags",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 33,
+      "model_name": " Bwd URG Flags",
+      "source_name": " Bwd URG Flags",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 34,
+      "model_name": " Fwd Header Length",
+      "source_name": " Fwd Header Length",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 35,
+      "model_name": " Bwd Header Length",
+      "source_name": " Bwd Header Length",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 36,
+      "model_name": "Fwd Packets/s",
+      "source_name": "Fwd Packets/s",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 37,
+      "model_name": " Bwd Packets/s",
+      "source_name": " Bwd Packets/s",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 38,
+      "model_name": " Min Packet Length",
+      "source_name": " Min Packet Length",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 39,
+      "model_name": " Max Packet Length",
+      "source_name": " Max Packet Length",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 40,
+      "model_name": " Packet Length Mean",
+      "source_name": " Packet Length Mean",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 41,
+      "model_name": " Packet Length Std",
+      "source_name": " Packet Length Std",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 42,
+      "model_name": " Packet Length Variance",
+      "source_name": " Packet Length Variance",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 43,
+      "model_name": "FIN Flag Count",
+      "source_name": "FIN Flag Count",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 44,
+      "model_name": " SYN Flag Count",
+      "source_name": " SYN Flag Count",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 45,
+      "model_name": " RST Flag Count",
+      "source_name": " RST Flag Count",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 46,
+      "model_name": " PSH Flag Count",
+      "source_name": " PSH Flag Count",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 47,
+      "model_name": " ACK Flag Count",
+      "source_name": " ACK Flag Count",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 48,
+      "model_name": " URG Flag Count",
+      "source_name": " URG Flag Count",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 49,
+      "model_name": " CWE Flag Count",
+      "source_name": " CWE Flag Count",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 50,
+      "model_name": " ECE Flag Count",
+      "source_name": " ECE Flag Count",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 51,
+      "model_name": " Down/Up Ratio",
+      "source_name": " Down/Up Ratio",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 52,
+      "model_name": " Average Packet Size",
+      "source_name": " Average Packet Size",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 53,
+      "model_name": " Avg Fwd Segment Size",
+      "source_name": " Avg Fwd Segment Size",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 54,
+      "model_name": " Avg Bwd Segment Size",
+      "source_name": " Avg Bwd Segment Size",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 55,
+      "model_name": " Fwd Header Length__duplicate_2",
+      "source_name": " Fwd Header Length",
+      "source_occurrence": 2,
+      "dtype": "float64"
+    },
+    {
+      "position": 56,
+      "model_name": "Fwd Avg Bytes/Bulk",
+      "source_name": "Fwd Avg Bytes/Bulk",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 57,
+      "model_name": " Fwd Avg Packets/Bulk",
+      "source_name": " Fwd Avg Packets/Bulk",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 58,
+      "model_name": " Fwd Avg Bulk Rate",
+      "source_name": " Fwd Avg Bulk Rate",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 59,
+      "model_name": " Bwd Avg Bytes/Bulk",
+      "source_name": " Bwd Avg Bytes/Bulk",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 60,
+      "model_name": " Bwd Avg Packets/Bulk",
+      "source_name": " Bwd Avg Packets/Bulk",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 61,
+      "model_name": "Bwd Avg Bulk Rate",
+      "source_name": "Bwd Avg Bulk Rate",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 62,
+      "model_name": "Subflow Fwd Packets",
+      "source_name": "Subflow Fwd Packets",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 63,
+      "model_name": " Subflow Fwd Bytes",
+      "source_name": " Subflow Fwd Bytes",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 64,
+      "model_name": " Subflow Bwd Packets",
+      "source_name": " Subflow Bwd Packets",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 65,
+      "model_name": " Subflow Bwd Bytes",
+      "source_name": " Subflow Bwd Bytes",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 66,
+      "model_name": "Init_Win_bytes_forward",
+      "source_name": "Init_Win_bytes_forward",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 67,
+      "model_name": " Init_Win_bytes_backward",
+      "source_name": " Init_Win_bytes_backward",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 68,
+      "model_name": " act_data_pkt_fwd",
+      "source_name": " act_data_pkt_fwd",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 69,
+      "model_name": " min_seg_size_forward",
+      "source_name": " min_seg_size_forward",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 70,
+      "model_name": "Active Mean",
+      "source_name": "Active Mean",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 71,
+      "model_name": " Active Std",
+      "source_name": " Active Std",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 72,
+      "model_name": " Active Max",
+      "source_name": " Active Max",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 73,
+      "model_name": " Active Min",
+      "source_name": " Active Min",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 74,
+      "model_name": "Idle Mean",
+      "source_name": "Idle Mean",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 75,
+      "model_name": " Idle Std",
+      "source_name": " Idle Std",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 76,
+      "model_name": " Idle Max",
+      "source_name": " Idle Max",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    },
+    {
+      "position": 77,
+      "model_name": " Idle Min",
+      "source_name": " Idle Min",
+      "source_occurrence": 1,
+      "dtype": "float64"
+    }
+  ]
+}
