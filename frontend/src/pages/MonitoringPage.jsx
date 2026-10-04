@@ -88,6 +88,20 @@ export default function MonitoringPage({ navigate, onSelectResult }) {
           setThreatsDetected(data.status.threats_detected || 0);
         } else if (data.type === "MONITOR_EVENT") {
           setEvents((prev) => [data.event, ...prev.slice(0, 99)]);
+          if (data.status) {
+            setStatus(data.status.status);
+            setActiveFlows(data.status.active_flows || 0);
+            setProcessedFlows(data.status.processed_flows || 0);
+            setNormalFlows(data.status.normal_flows || 0);
+            setThreatsDetected(data.status.threats_detected || 0);
+          } else {
+            setProcessedFlows((prev) => prev + 1);
+            if (data.event.status === "MALICIOUS") {
+              setThreatsDetected((prev) => prev + 1);
+            } else {
+              setNormalFlows((prev) => prev + 1);
+            }
+          }
           if (data.event.status === "MALICIOUS") {
             setRecentAlert(data.event);
           }
@@ -129,6 +143,12 @@ export default function MonitoringPage({ navigate, onSelectResult }) {
     try {
       const res = await startMonitoring(selectedInterface);
       setStatus(res.status);
+      setActiveFlows(0);
+      setProcessedFlows(0);
+      setNormalFlows(0);
+      setThreatsDetected(0);
+      setEvents([]);
+      setRecentAlert(null);
       setElapsedSeconds(0);
     } catch (err) {
       setError(err.message || "Failed to start real-time monitoring.");

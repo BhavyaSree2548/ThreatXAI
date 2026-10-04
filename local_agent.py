@@ -205,12 +205,14 @@ class ThreatXAISnifferAgent:
                 expired = self.aggregator.sweep_expired_flows(now_us)
 
             for flow_features, flow_meta in expired:
+                proto_val = getattr(flow_meta, "protocol", 6)
+                proto_str = "TCP" if proto_val in (6, "6") else "UDP" if proto_val in (17, "17") else str(proto_val)
                 meta = {
-                    "source_ip": getattr(flow_meta, "source_ip", getattr(flow_meta, "fwd_src_ip", "0.0.0.0")),
-                    "destination_ip": getattr(flow_meta, "destination_ip", getattr(flow_meta, "fwd_dst_ip", "0.0.0.0")),
-                    "source_port": getattr(flow_meta, "source_port", getattr(flow_meta, "fwd_src_port", 0)),
-                    "destination_port": getattr(flow_meta, "destination_port", getattr(flow_meta, "fwd_dst_port", 0)),
-                    "protocol": getattr(flow_meta, "protocol", "TCP"),
+                    "source_ip": str(getattr(flow_meta, "source_ip", getattr(flow_meta, "fwd_src_ip", "0.0.0.0"))),
+                    "destination_ip": str(getattr(flow_meta, "destination_ip", getattr(flow_meta, "fwd_dst_ip", "0.0.0.0"))),
+                    "source_port": int(getattr(flow_meta, "source_port", getattr(flow_meta, "fwd_src_port", 0))),
+                    "destination_port": int(getattr(flow_meta, "destination_port", getattr(flow_meta, "fwd_dst_port", 0))),
+                    "protocol": proto_str,
                 }
                 self.send_flow_to_backend(flow_features, meta)
 
@@ -274,12 +276,14 @@ class ThreatXAISnifferAgent:
         with self.lock:
             remaining = self.aggregator.flush_all()
         for flow_features, flow_meta in remaining:
+            proto_val = getattr(flow_meta, "protocol", 6)
+            proto_str = "TCP" if proto_val in (6, "6") else "UDP" if proto_val in (17, "17") else str(proto_val)
             meta = {
-                "source_ip": getattr(flow_meta, "source_ip", getattr(flow_meta, "fwd_src_ip", "0.0.0.0")),
-                "destination_ip": getattr(flow_meta, "destination_ip", getattr(flow_meta, "fwd_dst_ip", "0.0.0.0")),
-                "source_port": getattr(flow_meta, "source_port", getattr(flow_meta, "fwd_src_port", 0)),
-                "destination_port": getattr(flow_meta, "destination_port", getattr(flow_meta, "fwd_dst_port", 0)),
-                "protocol": getattr(flow_meta, "protocol", "TCP"),
+                "source_ip": str(getattr(flow_meta, "source_ip", getattr(flow_meta, "fwd_src_ip", "0.0.0.0"))),
+                "destination_ip": str(getattr(flow_meta, "destination_ip", getattr(flow_meta, "fwd_dst_ip", "0.0.0.0"))),
+                "source_port": int(getattr(flow_meta, "source_port", getattr(flow_meta, "fwd_src_port", 0))),
+                "destination_port": int(getattr(flow_meta, "destination_port", getattr(flow_meta, "fwd_dst_port", 0))),
+                "protocol": proto_str,
             }
             self.send_flow_to_backend(flow_features, meta)
 

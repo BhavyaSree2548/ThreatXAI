@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class MonitorState(str, Enum):
@@ -24,11 +24,39 @@ class InterfaceInfo(BaseModel):
 
 
 class FlowMetadata(BaseModel):
-    source_ip: str
-    destination_ip: str
-    source_port: int
-    destination_port: int
-    protocol: str
+    source_ip: str = "127.0.0.1"
+    destination_ip: str = "127.0.0.1"
+    source_port: int = 0
+    destination_port: int = 0
+    protocol: str = "TCP"
+
+    @field_validator("protocol", mode="before")
+    @classmethod
+    def normalize_protocol(cls, v: Any) -> str:
+        if v == 6 or v == "6":
+            return "TCP"
+        if v == 17 or v == "17":
+            return "UDP"
+        if v is None or v == "":
+            return "TCP"
+        return str(v)
+
+    @field_validator("source_port", "destination_port", mode="before")
+    @classmethod
+    def normalize_port(cls, v: Any) -> int:
+        if v is None or v == "":
+            return 0
+        try:
+            return int(v)
+        except (ValueError, TypeError):
+            return 0
+
+    @field_validator("source_ip", "destination_ip", mode="before")
+    @classmethod
+    def normalize_ip(cls, v: Any) -> str:
+        if v is None or v == "":
+            return "127.0.0.1"
+        return str(v)
 
 
 class ExplainedFeatureItem(BaseModel):

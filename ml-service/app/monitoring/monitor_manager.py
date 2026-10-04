@@ -91,7 +91,11 @@ class MonitorManager:
         """Schedule WebSocket broadcast across active UI clients."""
         if not self._ws_clients:
             return
-        payload = {"type": "MONITOR_EVENT", "event": event.model_dump()}
+        payload = {
+            "type": "MONITOR_EVENT",
+            "event": event.model_dump(),
+            "status": self.get_status().model_dump(),
+        }
         if self._loop and self._loop.is_running():
             asyncio.run_coroutine_threadsafe(self._broadcast_json(payload), self._loop)
         else:
@@ -133,12 +137,16 @@ class MonitorManager:
 
     def start_monitoring(self, interface: str) -> None:
         with self._lock:
-            if self._state == MonitorState.RUNNING:
-                raise ValueError(f"Monitoring is already RUNNING on interface {self._interface}.")
+            if self._state in (MonitorState.RUNNING, MonitorState.STARTING):
+                raise ValueError(f"Monitoring is already active on interface '{self._interface}'. Stop current session first.")
             self._state = MonitorState.STARTING
             self._interface = interface
             self._started_at = datetime.datetime.now().isoformat()
             self._error_message = None
+            self._processed_flows_count = 0
+            self._normal_flows_count = 0
+            self._threats_detected_count = 0
+            self._events_history.clear()
             self._stop_event.clear()
             self._aggregator = FlowAggregator()
 
@@ -392,6 +400,8 @@ class MonitorManager:
 
         except Exception as flow_err:
             # Safe catch to ensure monitoring continues
+            import traceback
+            traceback.print_exc()
             print(f"Error evaluating completed flow: {flow_err}")
             return None
 
