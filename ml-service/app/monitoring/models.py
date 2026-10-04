@@ -66,3 +66,9 @@ class MonitorStatusResponse(BaseModel):
 
 class StartMonitorRequest(BaseModel):
     interface: str
+
+
+class IngestFlowRequest(BaseModel):
+    features: dict[str, float]
+    metadata: FlowMetadata | dict[str, Any] = Field(default_factory=dict)
+

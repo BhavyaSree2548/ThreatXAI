@@ -34,6 +34,7 @@ from app.monitoring import (
     MonitorState,
     MonitorStatusResponse,
     StartMonitorRequest,
+    IngestFlowRequest,
     get_available_interfaces,
 )
 
@@ -423,6 +424,30 @@ def get_monitor_events(request: Request, limit: int = 50) -> list[MonitoringEven
     """Retrieve recent monitoring prediction and threat alert events."""
     manager: MonitorManager = get_monitor_manager(request.app)
     return manager.get_recent_events(limit=limit)
+
+
+@app.post("/monitor/ingest", response_model=MonitoringEvent)
+def ingest_flow_endpoint(payload: IngestFlowRequest, request: Request) -> MonitoringEvent:
+    """Ingest real 78-feature flow from local Windows agent, evaluate via LightGBM+SHAP, and broadcast via WebSocket."""
+    manager: MonitorManager = get_monitor_manager(request.app)
+
+    expected_key = os.getenv("THREATXAI_AGENT_KEY")
+    if expected_key:
+        agent_key = request.headers.get("X-Agent-Key") or request.headers.get("x-agent-key")
+        if agent_key != expected_key:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing X-Agent-Key.")
+
+    try:
+        event = manager.ingest_external_flow(payload.features, payload.metadata)
+        if not event:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Could not evaluate flow features.")
+        return event
+    except ValueError as val_err:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(val_err)) from val_err
+    except HTTPException:
+        raise
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Flow ingestion error: {err}") from err
 
 
 @app.websocket("/ws/monitor")

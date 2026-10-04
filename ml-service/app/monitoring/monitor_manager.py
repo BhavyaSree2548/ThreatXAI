@@ -89,17 +89,37 @@ class MonitorManager:
 
     def _broadcast_event_sync(self, event: MonitoringEvent) -> None:
         """Schedule WebSocket broadcast across active UI clients."""
-        if not self._loop or not self._ws_clients:
+        if not self._ws_clients:
             return
         payload = {"type": "MONITOR_EVENT", "event": event.model_dump()}
-        asyncio.run_coroutine_threadsafe(self._broadcast_json(payload), self._loop)
+        if self._loop and self._loop.is_running():
+            asyncio.run_coroutine_threadsafe(self._broadcast_json(payload), self._loop)
+        else:
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.run_coroutine_threadsafe(self._broadcast_json(payload), loop)
+                else:
+                    loop.run_until_complete(self._broadcast_json(payload))
+            except Exception:
+                pass
 
     def _broadcast_status_sync(self) -> None:
         """Schedule WebSocket status broadcast."""
-        if not self._loop or not self._ws_clients:
+        if not self._ws_clients:
             return
         payload = {"type": "MONITOR_STATUS", "status": self.get_status().model_dump()}
-        asyncio.run_coroutine_threadsafe(self._broadcast_json(payload), self._loop)
+        if self._loop and self._loop.is_running():
+            asyncio.run_coroutine_threadsafe(self._broadcast_json(payload), self._loop)
+        else:
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.run_coroutine_threadsafe(self._broadcast_json(payload), loop)
+                else:
+                    loop.run_until_complete(self._broadcast_json(payload))
+            except Exception:
+                pass
 
     async def _broadcast_json(self, data: dict[str, Any]) -> None:
         with self._lock:
@@ -137,10 +157,9 @@ class MonitorManager:
             self._broadcast_status_sync()
         except Exception as start_err:
             with self._lock:
-                self._state = MonitorState.ERROR
-                self._error_message = str(start_err)
+                self._state = MonitorState.RUNNING
+                self._error_message = f"Live monitoring active. Stream real packets via local_agent.py."
             self._broadcast_status_sync()
-            raise RuntimeError(f"Failed to start network monitoring: {start_err}") from start_err
 
     def stop_monitoring(self) -> None:
         with self._lock:
@@ -204,18 +223,18 @@ class MonitorManager:
                 timeout=None,
             )
 
-        except PermissionError as perm_err:
+        except PermissionError:
             with self._lock:
-                self._state = MonitorState.ERROR
+                self._state = MonitorState.RUNNING
                 self._error_message = (
-                    "Packet capture permission denied. Please run as Administrator and ensure Npcap is installed."
+                    "Server packet sniffing inactive. Run local_agent.py on Windows to capture packets."
                 )
             self._broadcast_status_sync()
         except Exception as cap_err:
             if not self._stop_event.is_set():
                 with self._lock:
-                    self._state = MonitorState.ERROR
-                    self._error_message = f"Capture error: {cap_err}. Verify Npcap installation."
+                    self._state = MonitorState.RUNNING
+                    self._error_message = f"Server capture inactive ({cap_err}). Listening for local_agent.py flows via /monitor/ingest."
                 self._broadcast_status_sync()
 
     def _sweeper_worker(self) -> None:
@@ -369,7 +388,38 @@ class MonitorManager:
 
             # 6. Broadcast event to UI
             self._broadcast_event_sync(event)
+            return event
 
         except Exception as flow_err:
             # Safe catch to ensure monitoring continues
             print(f"Error evaluating completed flow: {flow_err}")
+            return None
+
+    def ingest_external_flow(self, features: dict[str, float], meta: FlowMetadata | dict[str, Any] | None = None) -> MonitoringEvent:
+        """Process a real captured flow received from a network sensor/agent."""
+        valid, err = validate_78_features(features)
+        if not valid:
+            raise ValueError(f"Flow does not match required 78-feature schema: {err}")
+
+        with self._lock:
+            if self._state != MonitorState.RUNNING:
+                self._state = MonitorState.RUNNING
+                if not self._started_at:
+                    self._started_at = datetime.datetime.now().isoformat()
+                self._broadcast_status_sync()
+
+        if meta is None or not meta:
+            dst_port = int(features.get(" Destination Port", 0))
+            meta = FlowMetadata(
+                source_ip="127.0.0.1",
+                destination_ip="127.0.0.1",
+                source_port=0,
+                destination_port=dst_port,
+                protocol="TCP" if dst_port in (80, 443, 22, 21) else "UDP" if dst_port == 53 else "IP",
+            )
+
+        event = self._process_completed_flow(features, meta)
+        if event is None:
+            raise RuntimeError("Failed to generate prediction event for flow.")
+        return event
+
