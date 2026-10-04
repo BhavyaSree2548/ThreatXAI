@@ -757,95 +757,116 @@ async def upload_traffic(file: UploadFile = File(...), request: Request = None) 
 
     # Run predictions and SHAP explanations on each extracted flow
     for idx, features in enumerate(extracted_flows):
-        val_arr = np.asarray([features[name] for name in artifacts.feature_names], dtype=np.float64).reshape(1, -1)
-        val_arr[np.isinf(val_arr)] = np.nan
-        df = pd.DataFrame(val_arr, columns=artifacts.feature_names)
-        processed = artifacts.imputer.transform(df)
-
-        probs = artifacts.model.predict_proba(processed)[0]
-        pred_idx = int(np.argmax(probs))
-        pred_label = str(artifacts.label_encoder.inverse_transform(np.array([pred_idx]))[0])
-        status_label = "BENIGN" if pred_label == "BENIGN" else "MALICIOUS"
-        confidence = float(probs[pred_idx])
-        prob_map = {class_name: float(probs[i]) for i, class_name in enumerate(artifacts.classes)}
-
         try:
-            shap_values = select_predicted_class_shap_values(
-                artifacts.explainer.shap_values(processed),
-                pred_idx,
-                len(artifacts.feature_names),
-                len(artifacts.classes),
-            )
-            ranked_indices = sorted(
-                range(len(artifacts.feature_names)),
-                key=lambda i: abs(float(shap_values[i])),
-                reverse=True,
-            )[:10]
+            val_arr = np.asarray([features[name] for name in artifacts.feature_names], dtype=np.float64).reshape(1, -1)
+            val_arr[np.isinf(val_arr)] = np.nan
+            df = pd.DataFrame(val_arr, columns=artifacts.feature_names)
+            processed = artifacts.imputer.transform(df)
 
-            explanation = [
-                {
-                    "feature": artifacts.feature_names[i],
-                    "value": float(processed[0, i]),
-                    "shap_value": float(shap_values[i]),
-                    "direction": "increases_prediction" if shap_values[i] > 0 else "decreases_prediction" if shap_values[i] < 0 else "neutral",
-                }
-                for i in ranked_indices
-            ]
-            supporting = [f for f in explanation if f["shap_value"] > 0]
-            opposing = [f for f in explanation if f["shap_value"] < 0]
-            top_pos = [f["feature"].strip() for f in supporting[:3]]
-            top_str = f" ({', '.join(top_pos)})" if top_pos else ""
+            probs = artifacts.model.predict_proba(processed)[0]
+            pred_idx = int(np.argmax(probs))
+            pred_label = str(artifacts.label_encoder.inverse_transform(np.array([pred_idx]))[0])
+            status_label = "BENIGN" if pred_label == "BENIGN" else "MALICIOUS"
+            confidence = float(probs[pred_idx])
+            prob_map = {class_name: float(probs[i]) for i, class_name in enumerate(artifacts.classes)}
 
-            if status_label == "MALICIOUS":
-                summary = (
-                    f"Threat Detected: {pred_label}. The model classified this network traffic flow as {pred_label} "
-                    f"with {confidence * 100:.2f}% confidence. Primary contributing factors{top_str} "
-                    f"strongly match the {pred_label} attack pattern."
+            try:
+                shap_values = select_predicted_class_shap_values(
+                    artifacts.explainer.shap_values(processed),
+                    pred_idx,
+                    len(artifacts.feature_names),
+                    len(artifacts.classes),
                 )
-            else:
-                summary = (
-                    f"Traffic Status: BENIGN. The model classified this network traffic flow as normal BENIGN traffic with "
-                    f"{confidence * 100:.2f}% confidence. Observed network attributes{top_str} "
-                    f"align with standard baseline behavior in the CIC-IDS2017 dataset."
-                )
-        except Exception:
-            explanation = []
-            supporting = []
-            opposing = []
-            summary = f"Classification: {pred_label} ({confidence * 100:.2f}% confidence)."
+                ranked_indices = sorted(
+                    range(len(artifacts.feature_names)),
+                    key=lambda i: abs(float(shap_values[i])),
+                    reverse=True,
+                )[:10]
 
-        dst_val = features.get(" Destination Port", 0)
-        dst_port = int(dst_val) if dst_val is not None and not np.isnan(dst_val) else 0
+                explanation = [
+                    {
+                        "feature": artifacts.feature_names[i],
+                        "value": float(processed[0, i]),
+                        "shap_value": float(shap_values[i]),
+                        "direction": "increases_prediction" if shap_values[i] > 0 else "decreases_prediction" if shap_values[i] < 0 else "neutral",
+                    }
+                    for i in ranked_indices
+                ]
+                supporting = [f for f in explanation if f["shap_value"] > 0]
+                opposing = [f for f in explanation if f["shap_value"] < 0]
+                top_pos = [f["feature"].strip() for f in supporting[:3]]
+                top_str = f" ({', '.join(top_pos)})" if top_pos else ""
 
-        dur_val = features.get(" Flow Duration", 0.0)
-        duration = float(dur_val) if dur_val is not None and not np.isnan(dur_val) else 0.0
+                if status_label == "MALICIOUS":
+                    summary = (
+                        f"Threat Detected: {pred_label}. The model classified this network traffic flow as {pred_label} "
+                        f"with {confidence * 100:.2f}% confidence. Primary contributing factors{top_str} "
+                        f"strongly match the {pred_label} attack pattern."
+                    )
+                else:
+                    summary = (
+                        f"Traffic Status: BENIGN. The model classified this network traffic flow as normal BENIGN traffic with "
+                        f"{confidence * 100:.2f}% confidence. Observed network attributes{top_str} "
+                        f"align with standard baseline behavior in the CIC-IDS2017 dataset."
+                    )
+            except Exception:
+                explanation = []
+                supporting = []
+                opposing = []
+                summary = f"Classification: {pred_label} ({confidence * 100:.2f}% confidence)."
 
-        fwd_val = features.get(" Total Fwd Packets", 0)
-        fwd_pkts = int(fwd_val) if fwd_val is not None and not np.isnan(fwd_val) else 0
+            dst_val = features.get(" Destination Port", 0)
+            dst_port = int(dst_val) if dst_val is not None and not np.isnan(dst_val) else 0
 
-        bwd_val = features.get(" Total Backward Packets", 0)
-        bwd_pkts = int(bwd_val) if bwd_val is not None and not np.isnan(bwd_val) else 0
+            dur_val = features.get(" Flow Duration", 0.0)
+            duration = float(dur_val) if dur_val is not None and not np.isnan(dur_val) else 0.0
 
-        results.append({
-            "flow_index": idx + 1,
-            "filename": filename,
-            "prediction": pred_label,
-            "status": status_label,
-            "confidence": confidence,
-            "class_probabilities": prob_map,
-            "explanation": explanation,
-            "supporting_features": supporting,
-            "opposing_features": opposing,
-            "summary": summary,
-            "metadata": {
-                "destination_port": dst_port,
-                "flow_duration_us": duration,
-                "total_fwd_packets": fwd_pkts,
-                "total_bwd_packets": bwd_pkts,
-                "protocol": "TCP" if dst_port in (80, 443, 22, 21) else "UDP" if dst_port == 53 else "IP",
-            },
-            "features": features,
-        })
+            fwd_val = features.get(" Total Fwd Packets", 0)
+            fwd_pkts = int(fwd_val) if fwd_val is not None and not np.isnan(fwd_val) else 0
+
+            bwd_val = features.get(" Total Backward Packets", 0)
+            bwd_pkts = int(bwd_val) if bwd_val is not None and not np.isnan(bwd_val) else 0
+
+            safe_features: dict[str, float | None] = {}
+            for feat_name, feat_val in features.items():
+                if feat_val is None or (
+                    isinstance(feat_val, (float, int, np.floating, np.integer))
+                    and (np.isnan(feat_val) or np.isinf(feat_val))
+                ):
+                    safe_features[feat_name] = None
+                else:
+                    try:
+                        safe_features[feat_name] = float(feat_val)
+                    except (ValueError, TypeError):
+                        safe_features[feat_name] = None
+
+            results.append({
+                "flow_index": idx + 1,
+                "filename": filename,
+                "prediction": pred_label,
+                "status": status_label,
+                "confidence": confidence,
+                "class_probabilities": prob_map,
+                "explanation": explanation,
+                "supporting_features": supporting,
+                "opposing_features": opposing,
+                "summary": summary,
+                "metadata": {
+                    "destination_port": dst_port,
+                    "flow_duration_us": duration,
+                    "total_fwd_packets": fwd_pkts,
+                    "total_bwd_packets": bwd_pkts,
+                    "protocol": "TCP" if dst_port in (80, 443, 22, 21) else "UDP" if dst_port == 53 else "IP",
+                },
+                "features": safe_features,
+            })
+        except HTTPException:
+            raise
+        except Exception as flow_err:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Error processing network flow #{idx + 1}: {flow_err}",
+            ) from flow_err
 
     return results
 
